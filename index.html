@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shobi & Aswin Wedding Upload</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #fff8f0;
+    }
+    h2 {
+      margin-bottom: 5px;
+    }
+    p {
+      color: #555;
+    }
+    input, button {
+      padding: 12px;
+      margin: 12px;
+      font-size: 16px;
+    }
+    button {
+      background: black;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      opacity: 0.8;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📸 Upload Your Wedding Photos</h2>
+<p>Thank you for celebrating with us ❤️</p>
+
+<input type="file" id="photo" accept="image/*" />
+<br/>
+<button onclick="upload()">Upload</button>
+
+<script>
+async function upload() {
+  const fileInput = document.getElementById("photo");
+
+  if (!fileInput.files.length) {
+    alert("Please select a photo");
+    return;
+  }
+
+  const file = fileInput.files[0];
+
+  const reader = new FileReader();
+  reader.onload = async function() {
+    const base64 = reader.result.split(",")[1];
+
+    await fetch("https://script.google.com/macros/s/AKfycbyVS7PmeSiRLuMc3Xq8PXyONORMeBLmJSSdGiXKbfpyUZTesox45SG8NrHIZsJx6xoOWw/exec", {
+      method: "POST",
+      body: new URLSearchParams({
+        file: base64,
+        fileName: file.name,
+        mimeType: file.type
+      })
+    });
+
+    alert("Uploaded successfully ❤️");
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
