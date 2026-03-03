@@ -10,12 +10,8 @@
       padding: 40px;
       background: #fff8f0;
     }
-    h2 {
-      margin-bottom: 5px;
-    }
-    p {
-      color: #555;
-    }
+    h2 { margin-bottom: 5px; }
+    p { color: #555; }
     input, button {
       padding: 12px;
       margin: 12px;
@@ -27,48 +23,64 @@
       border: none;
       cursor: pointer;
     }
-    button:hover {
-      opacity: 0.8;
-    }
+    button:hover { opacity: 0.8; }
+    #status { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-<h2>📸 Upload Your Wedding Photos</h2>
+<h2>📸 Upload Your Wedding Photos & Videos</h2>
 <p>Thank you for celebrating with us ❤️</p>
 
-<input type="file" id="photo" accept="image/*" />
+<input type="file" id="media" accept="image/*,video/*" multiple />
 <br/>
 <button onclick="upload()">Upload</button>
 
+<div id="status"></div>
+
 <script>
 async function upload() {
-  const fileInput = document.getElementById("photo");
+  const input = document.getElementById("media");
+  const status = document.getElementById("status");
 
-  if (!fileInput.files.length) {
-    alert("Please select a photo");
+  if (!input.files.length) {
+    alert("Please select files");
     return;
   }
 
-  const file = fileInput.files[0];
+  status.innerText = "Uploading... Please wait ❤️";
 
-  const reader = new FileReader();
-  reader.onload = async function() {
-    const base64 = reader.result.split(",")[1];
+  for (let i = 0; i < input.files.length; i++) {
+    const file = input.files[i];
 
-    await fetch("https://script.google.com/macros/s/AKfycbyVS7PmeSiRLuMc3Xq8PXyONORMeBLmJSSdGiXKbfpyUZTesox45SG8NrHIZsJx6xoOWw/exec", {
-      method: "POST",
-      body: new URLSearchParams({
-        file: base64,
-        fileName: file.name,
-        mimeType: file.type
-      })
-    });
+    await uploadSingle(file);
+    status.innerText = `Uploaded ${i + 1} of ${input.files.length}`;
+  }
 
-    alert("Uploaded successfully ❤️");
-  };
+  status.innerText = "All files uploaded successfully 🎉";
+}
 
-  reader.readAsDataURL(file);
+function uploadSingle(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+
+    reader.onload = async function() {
+      const base64 = reader.result.split(",")[1];
+
+      await fetch("https://script.google.com/macros/s/AKfycbyVS7PmeSiRLuMc3Xq8PXyONORMeBLmJSSdGiXKbfpyUZTesox45SG8NrHIZsJx6xoOWw/exec", {
+        method: "POST",
+        body: new URLSearchParams({
+          file: base64,
+          fileName: file.name,
+          mimeType: file.type
+        })
+      });
+
+      resolve();
+    };
+
+    reader.readAsDataURL(file);
+  });
 }
 </script>
 
